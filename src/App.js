@@ -1,23 +1,51 @@
-import logo from './logo.svg';
 import './App.css';
+import { useEffect, useState } from 'react';
+import ToDo from './components/ToDo';
+import { getAllToDo, addToDo, updateToDo, deleteToDo } from './utils/HandleApi';
 
 function App() {
+  const [toDo, setToDo] = useState([])
+  const [text, setText] = useState("")
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [toDoId, setToDoId] = useState("")
+
+  useEffect(() => {
+    getAllToDo(setToDo)
+  }, [])
+
+  const updateMode = (_id, text) => {
+    setIsUpdating(true)
+    setText(text)
+    setToDoId(_id)
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="container">
+        <h1>Todo List</h1>
+        <div className="top">
+          <input
+            type="text"
+            placeholder='Enter todo...'
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
+          <button className='add' onClick={isUpdating ?
+            () => updateToDo(toDoId, text, setToDo, setText, setIsUpdating) :
+            () => addToDo(text, setText, setToDo)}>
+            {isUpdating ? "Update" : "Add"}
+          </button>
+        </div>
+        <div className="list">
+
+          {toDo.map((item) => <ToDo
+            key={item._id}
+            text={item.text}
+            updateMode={() => updateMode(item._id, item.text)}
+            deleteToDo={() => deleteToDo(item._id, setToDo)}
+          />)}
+        </div>
+      </div>
     </div>
   );
 }
